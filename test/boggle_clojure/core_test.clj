@@ -2,17 +2,6 @@
   (:require [clojure.test :refer :all]
             [boggle-clojure.core :refer :all]))
 
-(deftest test-square?
-    (testing "square? returns true for a square board"
-        (let [square-board [[1 2 3] [4 5 6] [7 8 9]]]
-            (is (= true (square? square-board)))))
-    (testing "square? returns false for an even, non-square board"
-        (let [board [[1 2 3] [4 5 6]]]
-            (is (= false (square? board)))))
-    (testing "square? returns false for an uneven board"
-        (let [board [[1 2 3] [4 5] [7 8 9]]]
-            (is (= false (square? board))))))
-
 (deftest test-word-to-string
     (testing "word-to-string converts a list of chars (a word) to a string representation"
         (let [word [[\H 0 1] [\E 0 2] [\L 0 3] [\L 0 4] [\O 0 5]]]

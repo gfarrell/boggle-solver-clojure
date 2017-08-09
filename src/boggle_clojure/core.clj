@@ -21,12 +21,6 @@
      [\O \Y \V \I]
      [\A \R \E \I]])
 
-(defn square?
-    "tests the squareness of a board"
-    [board]
-    (let [rows (count board)]
-        (not (some #((complement =) rows %) (map count board)))))
-
 (defn all
     "ensures all elements of a seq are truthy"
     [ls]
