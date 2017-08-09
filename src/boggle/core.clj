@@ -1,9 +1,10 @@
 (ns boggle.core
     (:use [clojure.string :only [split-lines upper-case]]
-          [clojure.math.numeric-tower :only [abs]])
+          [clojure.math.numeric-tower :only [abs]]
+          [clojure.java.io :as io])
     (:gen-class))
 
-(def DICT_LOC "/usr/share/dict/words")
+(def dict (io/resource "ospd.txt"))
 
 ; A boggle board is a square NxN matrix of characters
 ; As a matrix, the first element is the rows, the second is the column M[R][C]
@@ -97,7 +98,7 @@
 ; now to interact with actual words
 (defn load-words
     "loads words from the dictionary"
-    [] (filter (fn [word] (>= (count word) 3)) (map upper-case (split-lines (slurp DICT_LOC)))))
+    [] (filter (fn [word] (>= (count word) 3)) (map upper-case (split-lines (slurp dict)))))
 
 (defn find-all-words
     "finds all the dictionary words present in a boggle board described by a charlist"
