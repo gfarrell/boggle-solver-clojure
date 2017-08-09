@@ -80,3 +80,25 @@
                   [\D 1 0] [\E 1 1] [\F 1 2]]
               result (find-word cl "ABAD")]
             (is (empty? result)))))
+
+(deftest test-find-all-words
+    (testing "find-all-words"
+        (let [wl ["HELLO" "WORLD" "ABSENT"]
+              cl [[\H 0 0] [\W 0 1] [\O 0 2]
+                  [\E 1 0] [\L 1 1] [\R 1 2]
+                  [\L 2 0] [\O 2 1] [\D 2 2]]
+              result (find-all-words cl wl)]
+            (testing "correctly pulls out all the occurences of a word in a board"
+                (is (= (count (get result "HELLO")) 3))
+                (is (subseq? (get result "HELLO")
+                             [[[\H 0 0] [\E 1 0] [\L 2 0] [\L 1 1] [\O 2 1]]
+                              [[\H 0 0] [\E 1 0] [\L 1 1] [\L 2 0] [\O 2 1]]
+                              [[\H 0 0] [\E 1 0] [\L 2 0] [\L 1 1] [\O 0 2]]])))
+            (testing "correctly pulls out a single-occurence word in a board"
+                (is (= (count (get result "WORLD")) 1))
+                (is (subseq? (get result "WORLD")
+                             [[[\W 0 1] [\O 0 2] [\R 1 2] [\L 1 1] [\D 2 2]]])))
+            (testing "does not include unmatched words"
+                (is (not (contains? result "ABSENT"))))
+            (testing "creates a map of <word> -> <paths in the board> for all matches"
+                (is (= (count result) 2))))))

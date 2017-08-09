@@ -1,7 +1,9 @@
 (ns boggle-clojure.core
-  (:gen-class))
+    (:use [clojure.string :only [split-lines upper-case]]
+          [clojure.math.numeric-tower :only [abs]])
+    (:gen-class))
 
-(use '[clojure.math.numeric-tower :only (abs)])
+(def DICT_LOC "/usr/share/dict/words")
 
 ; A boggle board is a square NxN matrix of characters
 ; As a matrix, the first element is the rows, the second is the column M[R][C]
@@ -97,6 +99,20 @@
                 (if (empty? occurences)
                     nil
                     (recur (inc i) (next-paths paths occurences)))))))
+
+; now to interact with actual words
+(defn load-words
+    "loads words from the dictionary"
+    [] (map upper-case (split-lines (slurp DICT_LOC))))
+
+(defn find-all-words
+    "finds all the dictionary words present in a boggle board described by a charlist"
+    [charlist wordlist]
+    (reduce (fn [found word] (let [paths (find-word charlist word)]
+                                 (if (not (empty? paths))
+                                     (into found { word paths })
+                                     found)))
+            {} wordlist))
 
 (defn -main
   "I don't do a whole lot ... yet."
