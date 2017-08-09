@@ -60,3 +60,23 @@
             (is (and
                     (= [[\A 9 3] [\A 4 7]] (find-in-charlist cl \A))
                     (= [[\B 2 1]] (find-in-charlist cl \B)))))))
+
+(deftest test-valid-paths
+    (testing "valid-paths filters out all paths with repetition"
+        (let [paths [[[\A 0 1] [\B 0 2] [\C 0 3]] [[\A 0 1] [\B 0 2] [\A 0 1]]]]
+            (is (= (valid-paths paths) [[[\A 0 1] [\B 0 2] [\C 0 3]]])))))
+
+(deftest test-find-word
+    (testing "find-word finds all possible occurences of a word in a charlist"
+        (let [cl [[\A 0 0] [\B 0 1] [\C 0 2]
+                 [\D 1 0] [\A 1 1] [\E 1 2]
+                 [\F 2 0] [\G 2 1] [\H 2 2]]
+              result (find-word cl "ABE")]
+            (is (and (= (count result) 2)
+                     (subseq? result [[[\A 0 0] [\B 0 1] [\E 1 2]]
+                                      [[\A 1 1] [\B 0 1] [\E 1 2]]])))))
+    (testing "find-word doesn't repeat a grid-cell in a word"
+        (let [cl [[\A 0 0] [\B 0 1] [\C 0 2]
+                  [\D 1 0] [\E 1 1] [\F 1 2]]
+              result (find-word cl "ABAD")]
+            (is (empty? result)))))

@@ -77,6 +77,11 @@
                     (into new-paths (map #(conj path %) (adjacents (last path) chars))))
                 [] paths)))
 
+(defn valid-paths
+    "returns only valid paths from a pathlist"
+    [paths]
+    (filter #(= (count (set %)) (count %)) paths))
+
 ; split word into chars
 ; for each char, if it's in the charlist, add it to the list of paths
 ; for each char, check presence and then check adjancency to any paths
@@ -88,7 +93,7 @@
         (let [test-char (get word i)
               occurences (find-in-charlist charlist test-char)]
             (if (nil? test-char)
-                paths
+                (valid-paths paths)
                 (if (empty? occurences)
                     nil
                     (recur (inc i) (next-paths paths occurences)))))))
