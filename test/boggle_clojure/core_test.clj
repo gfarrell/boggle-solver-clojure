@@ -57,4 +57,6 @@
 (deftest test-find-in-charlist
     (testing "find-in-charlist finds a character in a charlist"
         (let [cl [[\A 9 3] [\B 2 1] [\C 8 6] [\A 4 7]]]
-        (= [[\A 9 3] [\A 4 7]] (find-in-charlist cl \A)))))
+            (is (and
+                    (= [[\A 9 3] [\A 4 7]] (find-in-charlist cl \A))
+                    (= [[\B 2 1]] (find-in-charlist cl \B)))))))

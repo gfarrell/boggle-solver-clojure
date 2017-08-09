@@ -85,13 +85,13 @@
     [charlist word]
     (loop [i 0
            paths []]
-        (let [test-char (get word i) chars (find-in-charlist charlist test-char)]
-            (if (or (empty? test-char) )
+        (let [test-char (get word i)
+              occurences (find-in-charlist charlist test-char)]
+            (if (nil? test-char)
                 paths
-                (if (empty? chars)
+                (if (empty? occurences)
                     nil
-                    (if (empty? paths)
-                        (recur (inc i) (next-paths paths chars))))))))
+                    (recur (inc i) (next-paths paths occurences)))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
