@@ -97,7 +97,7 @@
 ; now to interact with actual words
 (defn load-words
     "loads words from the dictionary"
-    [] (map upper-case (split-lines (slurp DICT_LOC))))
+    [] (filter (fn [word] (>= (count word) 3)) (map upper-case (split-lines (slurp DICT_LOC)))))
 
 (defn find-all-words
     "finds all the dictionary words present in a boggle board described by a charlist"
@@ -107,6 +107,18 @@
                                      (into found { word paths })
                                      found)))
             {} wordlist))
+
+(defn board-to-cl
+    "converts a board to a charlist"
+    [board]
+    (loop [i 0 charlist []]
+        (let [row (get board i)]
+            (if (nil? row)
+                charlist
+                (recur (inc i)
+                       (into charlist (reduce (fn [idxd cell] (conj idxd [cell i (count idxd)]))
+                                              []
+                                              row)))))))
 
 (defn -main
   "I don't do a whole lot ... yet."

@@ -91,3 +91,14 @@
                 (is (not (contains? result "ABSENT"))))
             (testing "creates a map of <word> -> <paths in the board> for all matches"
                 (is (= (count result) 2))))))
+
+(deftest test-board-to-cl
+    (testing "board-to-cl"
+        (let [board [[\A \B \C]
+                     [\D \E \F]
+                     [\G \H \I]]]
+            (testing "correctly parses a board into a charlist"
+                (is (= [[\A 0 0] [\B 0 1] [\C 0 2]
+                        [\D 1 0] [\E 1 1] [\F 1 2]
+                        [\G 2 0] [\H 2 1] [\I 2 2]]
+                       (board-to-cl board)))))))
