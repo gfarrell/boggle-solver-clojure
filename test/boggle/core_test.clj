@@ -1,6 +1,6 @@
-(ns boggle-clojure.core-test
+(ns boggle.core-test
   (:require [clojure.test :refer :all]
-            [boggle-clojure.core :refer :all]))
+            [boggle.core :refer :all]))
 
 (deftest test-word-to-string
     (testing "word-to-string converts a list of chars (a word) to a string representation"

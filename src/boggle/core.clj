@@ -1,4 +1,4 @@
-(ns boggle-clojure.core
+(ns boggle.core
     (:use [clojure.string :only [split-lines upper-case]]
           [clojure.math.numeric-tower :only [abs]])
     (:gen-class))
