@@ -72,7 +72,7 @@
 
 (deftest test-find-all-words
     (testing "find-all-words"
-        (let [wl ["HELLO" "WORLD" "ABSENT"]
+        (let [wl ["HELLO" "WORLD" "WORE"]
               cl [[\H 0 0] [\W 0 1] [\O 0 2]
                   [\E 1 0] [\L 1 1] [\R 1 2]
                   [\L 2 0] [\O 2 1] [\D 2 2]]
@@ -88,7 +88,7 @@
                 (is (subseq? (get result "WORLD")
                              [[[\W 0 1] [\O 0 2] [\R 1 2] [\L 1 1] [\D 2 2]]])))
             (testing "does not include unmatched words"
-                (is (not (contains? result "ABSENT"))))
+                (is (not (contains? result "WORE"))))
             (testing "creates a map of <word> -> <paths in the board> for all matches"
                 (is (= (count result) 2))))))
 

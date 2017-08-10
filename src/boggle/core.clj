@@ -46,7 +46,7 @@
 (defn wcol "get the column position of a letter" [letter] (get letter 2))
 
 (defn adjacent?
-    "returns whether two words are adjacent in the grid"
+    "returns whether two letters are adjacent in the grid"
     [a b]
     (and (>= 1 (abs (- (wrow a) (wrow b)))) (>= 1 (abs (- (wcol a) (wcol b))))))
 
@@ -69,7 +69,7 @@
     "adds a letter to the relevant paths, producing a new list of paths"
     [paths chars]
     (if (empty? paths)
-        (map #(vector %) chars)
+        []
         (reduce (fn [new-paths path]
                     (into new-paths (map #(conj path %) (adjacents (last path) chars))))
                 [] paths)))
@@ -85,15 +85,17 @@
 (defn find-word
     "finds all the possible ways to construct a word from a charlist"
     [charlist word]
-    (loop [i 0
-           paths []]
-        (let [test-char (get word i)
-              occurences (find-in-charlist charlist test-char)]
-            (if (nil? test-char)
-                (valid-paths paths)
-                (if (empty? occurences)
-                    nil
-                    (recur (inc i) (next-paths paths occurences)))))))
+    (loop [i 1
+           paths (map #(vector %) (find-in-charlist charlist (get word 0)))]
+        (if (empty? paths)
+            nil
+            (let [test-char (get word i)
+                  occurences (find-in-charlist charlist test-char)]
+                (if (nil? test-char)
+                    (valid-paths paths)
+                    (if (empty? occurences)
+                        nil
+                        (recur (inc i) (next-paths paths occurences))))))))
 
 ; now to interact with actual words
 (defn load-words
