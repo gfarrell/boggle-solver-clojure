@@ -2,10 +2,27 @@
   (:require [clojure.test :refer :all]
             [boggle.core :refer :all]))
 
-(deftest test-word-to-string
-    (testing "word-to-string converts a list of chars (a word) to a string representation"
-        (let [word [[\H 0 1] [\E 0 2] [\L 0 3] [\L 0 4] [\O 0 5]]]
-            (is (= "HELLO" (apply word-to-string word))))))
+(deftest test-valid-word?
+    (testing "valid-word?"
+        (testing "rejects words of <3 characters"
+            (is (= false (valid-word? "as"))))
+        (testing "rejects words with a q not followed by a u"
+            (is (= false (valid-word? "faqir"))))
+        (testing "passes words with >= 3 characters"
+            (is (= true (valid-word? "hello"))))
+        (testing "passes words with a qu"
+            (is (= true (valid-word? "queer"))))
+        (testing "rejects case insensitively"
+            (is (= false (valid-word? "FAQIR"))))
+        (testing "passes case insensitively"
+            (is (= true (valid-word? "QUEER"))))))
+
+(deftest test-word-to-tiles
+    (testing "word-to-tiles"
+        (testing "converts a string to a vector of character-strings"
+            (is (= (word-to-tiles "hello") ["H" "E" "L" "L" "O"])))
+        (testing "preserves qu -> qu instead of separating them"
+            (is (= (word-to-tiles "quiz") ["QU" "I" "Z"])))))
 
 (deftest test-all
     (testing "all returns true if all elements are truthy"
@@ -30,63 +47,63 @@
 
 (deftest test-adjacent?
     (testing "adjacent? returns true for two adjacent words"
-        (is (= true (adjacent? [\A 1 1] [\B 1 2]))))
+        (is (= true (adjacent? ["A" 1 1] ["B" 1 2]))))
     (testing "adjacent? returns false for two non-adjacent words"
-        (is (= false (adjacent? [\A 1 1] [\B 2 3])))))
+        (is (= false (adjacent? ["A" 1 1] ["B" 2 3])))))
 
 (deftest test-adjacents
     (testing "adjacents returns a list of adjacent letters not including the original"
         (let
-            [cl [[\A 0 0] [\B 0 1] [\C 0 2] [\D 1 0] [\E 1 1] [\F 1 2] [\G 2 0] [\H 2 1] [\I 2 2]]]
-            (let [result (into [] (adjacents [\B 0 1] cl))]
+            [cl [["A" 0 0] ["B" 0 1] ["C" 0 2] ["D" 1 0] ["E" 1 1] ["F" 1 2] ["G" 2 0] ["H" 2 1] ["I" 2 2]]]
+            (let [result (into [] (adjacents ["B" 0 1] cl))]
                 (is (and
-                        (= true (subseq? result [[\A 0 0] [\C 0 2] [\D 1 0] [\E 1 1] [\F 1 2]]))
+                        (= true (subseq? result [["A" 0 0] ["C" 0 2] ["D" 1 0] ["E" 1 1] ["F" 1 2]]))
                         (= (count result) 5)))))))
 
 (deftest test-find-in-charlist
     (testing "find-in-charlist finds a character in a charlist"
-        (let [cl [[\A 9 3] [\B 2 1] [\C 8 6] [\A 4 7]]]
+        (let [cl [["A" 9 3] ["B" 2 1] ["C" 8 6] ["A" 4 7]]]
             (is (and
-                    (= [[\A 9 3] [\A 4 7]] (find-in-charlist cl \A))
-                    (= [[\B 2 1]] (find-in-charlist cl \B)))))))
+                    (= [["A" 9 3] ["A" 4 7]] (find-in-charlist cl "A"))
+                    (= [["B" 2 1]] (find-in-charlist cl "B")))))))
 
 (deftest test-valid-paths
     (testing "valid-paths filters out all paths with repetition"
-        (let [paths [[[\A 0 1] [\B 0 2] [\C 0 3]] [[\A 0 1] [\B 0 2] [\A 0 1]]]]
-            (is (= (valid-paths paths) [[[\A 0 1] [\B 0 2] [\C 0 3]]])))))
+        (let [paths [[["A" 0 1] ["B" 0 2] ["C" 0 3]] [["A" 0 1] ["B" 0 2] ["A" 0 1]]]]
+            (is (= (valid-paths paths) [[["A" 0 1] ["B" 0 2] ["C" 0 3]]])))))
 
 (deftest test-find-word
     (testing "find-word finds all possible occurences of a word in a charlist"
-        (let [cl [[\A 0 0] [\B 0 1] [\C 0 2]
-                 [\D 1 0] [\A 1 1] [\E 1 2]
-                 [\F 2 0] [\G 2 1] [\H 2 2]]
+        (let [cl [["A" 0 0] ["B" 0 1] ["C" 0 2]
+                 ["D" 1 0] ["A" 1 1] ["E" 1 2]
+                 ["F" 2 0] ["G" 2 1] ["H" 2 2]]
               result (find-word cl "ABE")]
             (is (and (= (count result) 2)
-                     (subseq? result [[[\A 0 0] [\B 0 1] [\E 1 2]]
-                                      [[\A 1 1] [\B 0 1] [\E 1 2]]])))))
+                     (subseq? result [[["A" 0 0] ["B" 0 1] ["E" 1 2]]
+                                      [["A" 1 1] ["B" 0 1] ["E" 1 2]]])))))
     (testing "find-word doesn't repeat a grid-cell in a word"
-        (let [cl [[\A 0 0] [\B 0 1] [\C 0 2]
-                  [\D 1 0] [\E 1 1] [\F 1 2]]
+        (let [cl [["A" 0 0] ["B" 0 1] ["C" 0 2]
+                  ["D" 1 0] ["E" 1 1] ["F" 1 2]]
               result (find-word cl "ABAD")]
             (is (empty? result)))))
 
 (deftest test-find-all-words
     (testing "find-all-words"
         (let [wl ["HELLO" "WORLD" "WORE"]
-              cl [[\H 0 0] [\W 0 1] [\O 0 2]
-                  [\E 1 0] [\L 1 1] [\R 1 2]
-                  [\L 2 0] [\O 2 1] [\D 2 2]]
+              cl [["H" 0 0] ["W" 0 1] ["O" 0 2]
+                  ["E" 1 0] ["L" 1 1] ["R" 1 2]
+                  ["L" 2 0] ["O" 2 1] ["D" 2 2]]
               result (find-all-words cl wl)]
             (testing "correctly pulls out all the occurences of a word in a board"
                 (is (= (count (get result "HELLO")) 3))
                 (is (subseq? (get result "HELLO")
-                             [[[\H 0 0] [\E 1 0] [\L 2 0] [\L 1 1] [\O 2 1]]
-                              [[\H 0 0] [\E 1 0] [\L 1 1] [\L 2 0] [\O 2 1]]
-                              [[\H 0 0] [\E 1 0] [\L 2 0] [\L 1 1] [\O 0 2]]])))
+                             [[["H" 0 0] ["E" 1 0] ["L" 2 0] ["L" 1 1] ["O" 2 1]]
+                              [["H" 0 0] ["E" 1 0] ["L" 1 1] ["L" 2 0] ["O" 2 1]]
+                              [["H" 0 0] ["E" 1 0] ["L" 2 0] ["L" 1 1] ["O" 0 2]]])))
             (testing "correctly pulls out a single-occurence word in a board"
                 (is (= (count (get result "WORLD")) 1))
                 (is (subseq? (get result "WORLD")
-                             [[[\W 0 1] [\O 0 2] [\R 1 2] [\L 1 1] [\D 2 2]]])))
+                             [[["W" 0 1] ["O" 0 2] ["R" 1 2] ["L" 1 1] ["D" 2 2]]])))
             (testing "does not include unmatched words"
                 (is (not (contains? result "WORE"))))
             (testing "creates a map of <word> -> <paths in the board> for all matches"
@@ -94,11 +111,19 @@
 
 (deftest test-board-to-cl
     (testing "board-to-cl"
-        (let [board [[\A \B \C]
-                     [\D \E \F]
-                     [\G \H \I]]]
+        (let [board [["A" "B" "C"]
+                     ["D" "E" "F"]
+                     ["G" "H" "I"]]]
             (testing "correctly parses a board into a charlist"
-                (is (= [[\A 0 0] [\B 0 1] [\C 0 2]
-                        [\D 1 0] [\E 1 1] [\F 1 2]
-                        [\G 2 0] [\H 2 1] [\I 2 2]]
+                (is (= [["A" 0 0] ["B" 0 1] ["C" 0 2]
+                        ["D" 1 0] ["E" 1 1] ["F" 1 2]
+                        ["G" 2 0] ["H" 2 1] ["I" 2 2]]
                        (board-to-cl board)))))))
+
+(deftest test-load-board
+    (testing "load-board"
+        (testing "correctly parses string data into a board matrix"
+            (is (= (load-board "A B C\nD E F\nP QU R")
+                   [["A" "B" "C"]
+                    ["D" "E" "F"]
+                    ["P" "QU" "R"]])))))

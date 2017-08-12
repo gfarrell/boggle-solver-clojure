@@ -1,7 +1,7 @@
 (ns boggle.core
-    (:use [clojure.string :only [split-lines upper-case]]
-          [clojure.math.numeric-tower :only [abs]]
+    (:use [clojure.math.numeric-tower :only [abs]]
           [clojure.java.io :as io])
+    (:require [clojure.string :as string])
     (:gen-class))
 
 (def dict (io/resource "ospd.txt"))
@@ -17,10 +17,10 @@
 ; if word is found in the board, add it to the success list
 
 (def trial-board
-    [[\H \F \E \R]
-     [\E \A \O \Y]
-     [\O \Y \V \I]
-     [\A \R \E \I]])
+    [["H" "F" "E" "R"]
+     ["E" "A" "O" "Y"]
+     ["O" "Y" "V" "I"]
+     ["A" "R" "E" "I"]])
 
 (defn all
     "ensures all elements of a seq are truthy"
@@ -37,10 +37,16 @@
     [sub sup]
     (empty? (filter (fn [el] (not (some #{ el } sup))) sub)))
 
-(defn word-to-string
-    "converts a word to a string"
-    ([letter] (first letter))
-    ([first-letter & letters] (str (first first-letter) (apply word-to-string letters))))
+(defn valid-word?
+    "checks if a word is valid"
+    [word]
+    (and (>= (count word) 3) (nil? (re-seq #"(?i)q([^u])" word))))
+
+(defn word-to-tiles
+; currently unused as breaks word-finding algorithm for some reason...
+    "converts a string (word) to a series of tiles (letters)"
+    [word]
+    (map #(if (= \Q %) "QU" (str %)) (string/replace (string/upper-case word) "QU" "Q")))
 
 (defn wrow "get the row position of a letter" [letter] (get letter 1))
 (defn wcol "get the column position of a letter" [letter] (get letter 2))
@@ -56,9 +62,9 @@
     (filter (complement (partial = letter)) (filter (partial adjacent? letter) charlist)))
 
 (defn is-letter
-    "checks if a letter [<char> <int> <int>] has a char value as given"
+    "checks if a tile [<str> <int> <int>] has a str value as given"
     [letter test-char]
-    (= test-char (get letter 0)))
+    (= (str test-char) (str (get letter 0))))
 
 (defn find-in-charlist
     "finds a character in a charlist, returning the letter occurrences"
@@ -100,7 +106,8 @@
 ; now to interact with actual words
 (defn load-words
     "loads words from the dictionary"
-    [] (filter (fn [word] (>= (count word) 3)) (map upper-case (split-lines (slurp dict)))))
+    ([] (load-words dict))
+    ([dict-file] (map string/upper-case (filter valid-word? (string/split-lines (slurp dict-file))))))
 
 (defn find-all-words
     "finds all the dictionary words present in a boggle board described by a charlist"
@@ -119,11 +126,19 @@
             (if (nil? row)
                 charlist
                 (recur (inc i)
-                       (into charlist (reduce (fn [idxd cell] (conj idxd [cell i (count idxd)]))
+                       (into charlist (reduce (fn [idxd cell] (conj idxd [(str cell) i (count idxd)]))
                                               []
                                               row)))))))
 
+(defn load-board
+    "loads a board from a string input (e.g. from a slurped file)"
+    [board]
+    (into [] (map #(string/split % #"\s") (string/split-lines board))))
+
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  "reads a boggle board (space/line-separated) from a file and produces a list of words"
+  [filename]
+  (let
+      [result (find-all-words (board-to-cl (load-board (slurp filename))) (load-words))]
+      (do (doall (map (fn [[word paths]] (println word ": " paths)) result))
+          (println (count result) "words found!"))))
