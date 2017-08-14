@@ -1,4 +1,4 @@
-(defproject boggle "0.1.0-SNAPSHOT"
+(defproject boggle "1.0.0"
   :description "Boggle Board Solver"
   :url "https://github.com/gfarrell/boggle-solver-clojure"
   :license {:name "Eclipse Public License"
