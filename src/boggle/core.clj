@@ -96,12 +96,12 @@
         (if (empty? paths)
             nil
             (let [test-char (get word i)
-                  occurences (find-in-charlist charlist test-char)]
+                  occurrences (find-in-charlist charlist test-char)]
                 (if (nil? test-char)
                     (valid-paths paths)
-                    (if (empty? occurences)
+                    (if (empty? occurrences)
                         nil
-                        (recur (inc i) (next-paths paths occurences))))))))
+                        (recur (inc i) (next-paths paths occurrences))))))))
 
 ; now to interact with actual words
 (defn load-words
